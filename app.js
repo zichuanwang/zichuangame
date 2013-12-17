@@ -7,10 +7,10 @@
  */
 var express = require("express"),
     server = express(),
-    app = server.listen(3000),
+    app = server.listen(80),
     io = require("socket.io"),
     gameServer = require("./gameServer").gameServer;
-    
+
 var socket = io.listen(app);
 
 server.use('/', express.static(__dirname + '/') );
