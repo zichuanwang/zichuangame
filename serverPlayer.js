@@ -7,4 +7,4 @@ var player = function(startX, startY, initid, initDirection) {
     return this;
 };
 
-module.exports = player;
+module.exports.player = player;

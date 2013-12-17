@@ -1,5 +1,5 @@
 var util = require('util'),
-		player = require("./serverPlayer");
+		player = require("./serverPlayer").player;
 
 var gameServer = function(socket) {
 
@@ -48,7 +48,12 @@ var gameServer = function(socket) {
 	};
 
 	function onNewPlayer(data) {
-		var newPlayer = new player(data.x, data.y, this.id, true);
+		var newPlayer = {
+			x: data.x,
+			y: data.y,
+			facingRight: true,
+			id: this.id
+		};
 
 		this.broadcast.emit("new player", {id: newPlayer.id, x: newPlayer.x, y: newPlayer.y});
 
