@@ -9,9 +9,8 @@ var express = require("express"),
     server = express(),
     app = server.listen(3000),
     io = require("socket.io"),
-    gameServer = require("./gameServer").gameServer,
-    player = require("./serverPlayer");
-
+    gameServer = require("./gameServer").gameServer;
+    
 var socket = io.listen(app);
 
 server.use('/', express.static(__dirname + '/') );

@@ -1,15 +1,10 @@
-var player = function(startX, startY) {
-    var x = startX,
-        y = startY,
-        facingRight = true,
-        id;
+var player = function(startX, startY, initid, initDirection) {
+    this.x = startX;
+    this.y = startY;
+    this.facingRight = initDirection;
+    this.id = initid;
 
-    return {
-        x: x,
-        y: y,
-        id: id,
-        facingRight: facingRight
-    }
+    return this;
 };
 
 module.exports = player;
