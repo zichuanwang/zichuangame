@@ -48,12 +48,7 @@ var gameServer = function(socket) {
 	};
 
 	function onNewPlayer(data) {
-		var newPlayer = {
-			x: data.x,
-			y: data.y,
-			facingRight: true,
-			id: this.id
-		};
+		var newPlayer = new player(data.x, data.y, this.id, true);
 
 		this.broadcast.emit("new player", {id: newPlayer.id, x: newPlayer.x, y: newPlayer.y});
 
@@ -82,7 +77,7 @@ var gameServer = function(socket) {
 
 		var i;
 		for (i = 0; i < players.length; i++) {
-			player = players[i];
+			var player = players[i];
 			if (player.id == this.id) continue;
 			util.log("distance:" + Math.pow(punchPlayer.x - player.x, 2) + Math.pow(punchPlayer.y - player.y, 2).toString());
 			if (Math.pow(punchPlayer.x - player.x, 2) + 

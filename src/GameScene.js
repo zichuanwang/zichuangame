@@ -193,7 +193,7 @@ var GameLayer = InputLayer.extend({
             new cc.Color4B(255, 255, 255, 255), winSize.width, winSize.height);
         this.addChild(bgLayer);
 
-        this.socket = io.connect("http://10.0.1.16", {
+        this.socket = io.connect("http://zichuanwang.com", {
             port: 3000,
             transports: ["websocket"],
             rememberTransport: true
