@@ -9,7 +9,8 @@ var express = require("express"),
     server = express(),
     app = server.listen(3000),
     io = require("socket.io"),
-    gameServer = require("./gameServer").gameServer;
+    gameServer = require("./gameServer").gameServer,
+    player = require("./serverPlayer");
 
 var socket = io.listen(app);
 
@@ -20,4 +21,4 @@ server.get('/', function(req,res){
     console.log('Sent index.html');
 });
 
-gameServer(socket, io);
+gameServer(socket);
