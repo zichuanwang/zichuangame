@@ -38,8 +38,9 @@ var GameCharacter = cc.Sprite.extend({
         var cache = cc.SpriteFrameCache.getInstance();
         cache.addSpriteFrames(s_spritesheet, "res/spritesheet.png");
 
+        this.facingRight = data.direction;
         var direction = "Left";
-        if (data.direction) direction = "Right";
+        if (this.facingRight) direction = "Right";
         this.initWithSpriteFrameName("Walk" + direction + "00.png");
 
         this.setPosition(new cc.Point(data.x, data.y));

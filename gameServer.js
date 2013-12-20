@@ -25,7 +25,7 @@ function onSocketConnection(client) {
 	client.on("punch player", onPunchPlayer);
 	client.on("stand player", onStandPlayer);
 
-	onNewPlayer(client);
+	createNewPlayer(client);
 }
 
 function onClientDisconnect() {
@@ -45,7 +45,7 @@ function onClientDisconnect() {
 	this.broadcast.emit("remove player", {id: this.id});
 }
 
-function onNewPlayer(client) {
+function createNewPlayer(client) {
 
 	var posX = 300, posY = 300, facingRight = true, newTeam = "A";
 	if (teamACount > teamBCount) {
@@ -101,6 +101,10 @@ function onPunchPlayer(data) {
 		id: punchPlayer.id
 	});
 
+	handleHurtPlayer(punchPlayer);
+}
+
+function handleHurtPlayer(punchPlayer) {
 	var i;
 	for (i = 0; i < players.length; i++) {
 		var player = players[i];
