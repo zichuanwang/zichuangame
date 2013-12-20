@@ -216,11 +216,11 @@ var GameLayer = InputLayer.extend({
             return;
         };
 
-        deadPlayer.stand();
         deadPlayer.setHP(data.HP);
         deadPlayer.setPositionX(data.x);
         deadPlayer.setPositionY(data.y);
         deadPlayer.setDirection(data.direction);
+        deadPlayer.stand();
 
         this.scoreLabel.setString(data.scoreA.toString() + " : " + data.scoreB.toString());
     },
