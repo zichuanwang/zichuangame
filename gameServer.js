@@ -5,6 +5,8 @@ var util = require('util'),
 var players = [];
 var teamACount = 0;
 var teamBCount = 0;
+var teamScoreA = 0;
+var teamScoreB = 0;
 
 function listen(app) {
 
@@ -46,6 +48,8 @@ function onClientDisconnect() {
 }
 
 function createNewPlayer(client) {
+
+	util.log("Create new player: " + client.id);
 
 	var posX = 300, posY = 300, facingRight = true, newTeam = "A";
 	if (teamACount > teamBCount) {
@@ -120,19 +124,47 @@ function handleHurtPlayer(punchPlayer) {
 					util.log("Player hurt: " + player.id);
 
 				player.HP -= 10;
-				if (player.HP < 0) player.HP = 0;
-
-				if (player.HP == 0) {
-					util.log("Player " + this.id + " is dead.");
+				if (player.HP < 0) {
+					handleDeadPlayer(player);
+				} else {
+					io.sockets.emit("hurt player", {
+						id: player.id,
+						HP: player.HP
+					});
 				}
-
-				io.sockets.emit("hurt player", {
-					id: player.id,
-					HP: player.HP
-				});
 			}
 		}			
 	}
+}
+
+function handleDeadPlayer(deadPlayer) {
+	util.log("Player " + deadPlayer.id + " is dead.");
+
+	var posX = 300, posY = 300, facingRight = true, newTeam = "A";
+	if (deadPlayer.team == "B") {
+		posX = 1024 - 300;
+		facingRight = false;
+		teamScoreA++;
+	} else {
+		teamScoreB++;
+	}
+
+	deadPlayer.x = posX;
+	deadPlayer.y = posY;
+	deadPlayer.facingRight = facingRight;
+	deadPlayer.HP = 100; // TODO
+
+	var playerInfo = {
+		id: deadPlayer.id,
+		x: posX,
+		y: posY,
+		direction: facingRight,
+		HP: deadPlayer.HP, // TODO
+		scoreA: teamScoreA,
+		scoreB: teamScoreB
+	};
+
+	io.sockets.emit("dead player", playerInfo);
 }
 
 function onStandPlayer(data) {

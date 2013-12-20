@@ -103,6 +103,7 @@ var GameLayer = InputLayer.extend({
     localPlayer: null,
     remotePlayers: [],
     socket: null,
+    scoreLabel: null,
 
     setEventHandlers: function() {
         this.socket.on("connect", this.onSocketConnected.bind(this));
@@ -114,6 +115,7 @@ var GameLayer = InputLayer.extend({
         this.socket.on("punch player", this.onPunchPlayer.bind(this));
         this.socket.on("hurt player", this.onHurtPlayer.bind(this));
         this.socket.on("stand player", this.onStandPlayer.bind(this));
+        this.socket.on("dead player", this.onDeadPlayer.bind(this));
     },
 
     onSocketConnected: function() {
@@ -204,6 +206,25 @@ var GameLayer = InputLayer.extend({
         hurtPlayer.setHP(data.HP);
     },
 
+    onDeadPlayer: function(data) {
+        cc.log("Player dead: " + data.id);
+
+        var deadPlayer = this.playerById(data.id);
+
+        if (!deadPlayer) {
+            console.log("Player not found: " + data.id);
+            return;
+        };
+
+        deadPlayer.stand();
+        deadPlayer.setHP(data.HP);
+        deadPlayer.setPositionX(data.x);
+        deadPlayer.setPositionY(data.y);
+        deadPlayer.setDirection(data.direction);
+
+        this.scoreLabel.setString(data.scoreA.toString() + " : " + data.scoreB.toString());
+    },
+
     playerById: function(id) {
 
         if (this.localPlayer.id == id)
@@ -228,7 +249,14 @@ var GameLayer = InputLayer.extend({
             new cc.Color4B(255, 255, 255, 255), winSize.width, winSize.height);
         this.addChild(bgLayer);
 
-        this.socket = io.connect("http://localhost", {
+        this.scoreLabel = cc.LabelTTF.create("0 : 0", "Arial", 30);
+        this.scoreLabel.setPosition(new cc.Point(
+            winSize.width / 2,
+            winSize.height / 2 + 300));
+        this.scoreLabel.setColor(new cc.Color3B(0, 0, 0));
+        this.addChild(this.scoreLabel);
+
+        this.socket = io.connect("http://zichuanwang.com", {
             port: 80,
             transports: ["websocket"],
             rememberTransport: true
