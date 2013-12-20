@@ -149,6 +149,11 @@ function handleDeadPlayer(deadPlayer) {
 		teamScoreB++;
 	}
 
+	if (teamScoreA > 10 || teamScoreB > 10) {
+		teamScoreA = 0;
+		teamScoreB = 0;
+	}
+
 	deadPlayer.x = posX;
 	deadPlayer.y = posY;
 	deadPlayer.facingRight = facingRight;
