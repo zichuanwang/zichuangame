@@ -1,15 +1,60 @@
+var BloodBarSprite = cc.Sprite.extend({
+
+    HP: 100,
+    maxHP: 100,
+
+    ctor: function() {
+        this._super();
+        this.initWithSpriteFrameName("BloodBarInner.png");
+        this.setScaleX(80);
+        this.setScaleY(3);
+        this.setPosition(58, 130);
+        this.anchorPoint = new cc.Point(1, 1);
+    },
+
+    getHP: function() {
+        return this.HP;
+    },
+
+    setHP: function(newHP) {
+        this.setScaleX(newHP / this.maxHP * 80);
+        this.setPositionX(this.getPositionX() - (this.HP - newHP) / this.maxHP * 80 / 2);
+        this.HP = newHP;
+    }
+});
+
 var GameCharacter = cc.Sprite.extend({
 
     facingRight: true,
     animFrame: 0,
     animPrefix: "Walk",
     id:0,
+    bloodBar: null,
+    attack: 10,
+    defense: 5,
 
-    ctor: function() {
+    ctor: function(data) {
         this._super();
         var cache = cc.SpriteFrameCache.getInstance();
         cache.addSpriteFrames(s_spritesheet, "res/spritesheet.png");
-        this.initWithSpriteFrameName("WalkRight00.png");
+
+        var direction = "Left";
+        if (data.direction) direction = "Right";
+        this.initWithSpriteFrameName("Walk" + direction + "00.png");
+
+        this.setPosition(new cc.Point(data.x, data.y));
+        this.id = data.id;
+
+        this.bloodBar = new BloodBarSprite();
+        this.addChild(this.bloodBar);
+    },
+
+    getHP: function() {
+        return this.bloodBar.getHP();
+    },
+
+    setHP: function(newHP) {
+        this.bloodBar.setHP(newHP);
     },
 
     setDirection: function(right) {
@@ -61,50 +106,37 @@ var GameLayer = InputLayer.extend({
     setEventHandlers: function() {
         this.socket.on("connect", this.onSocketConnected.bind(this));
         this.socket.on("disconnect", this.onSocketDisconnect.bind(this));
-        this.socket.on("new player", this.onNewPlayer.bind(this));
+        this.socket.on("new remote player", this.onNewRemotePlayer.bind(this));
+        this.socket.on("new local player", this.onNewLocalPlayer.bind(this));
         this.socket.on("move player", this.onMovePlayer.bind(this));
         this.socket.on("remove player", this.onRemovePlayer.bind(this));
         this.socket.on("punch player", this.onPunchPlayer.bind(this));
         this.socket.on("hurt player", this.onHurtPlayer.bind(this));
-        this.socket.on("client id", this.onClientID.bind(this));
         this.socket.on("stand player", this.onStandPlayer.bind(this));
     },
 
     onSocketConnected: function() {
         cc.log("Connected to socket server");
-
-        // cc.log(this.socket.transports.sessionid);
     },
 
-    onClientID: function(data) {
+    onNewLocalPlayer: function(data) {
 
-        cc.log("Client ID:" + data.id);
+        cc.log("New local player: " + data.id);
 
-        this.localPlayer = new GameCharacter();
-        this.localPlayer.setPosition(new cc.Point(300, 300));
-        this.localPlayer.id = data.id;
+        this.localPlayer = new GameCharacter(data);
         this.addChild(this.localPlayer);
+    },
 
-        this.remotePlayers = [];
+    onNewRemotePlayer: function(data) {
+        cc.log("New remote player: " + data.id);
 
-        this.socket.emit("new player", {
-            x: this.localPlayer.getPosition().x, 
-            y: this.localPlayer.getPosition().y
-        });
+        var newPlayer = new GameCharacter(data);
+        this.remotePlayers.push(newPlayer);
+        this.addChild(newPlayer);
     },
 
     onSocketDisconnect: function() {
         cc.log("Disconnected from socket server");
-    },
-
-    onNewPlayer: function(data) {
-        cc.log("New player connected: " + data.id);
-
-        var newPlayer = new GameCharacter();
-        newPlayer.setPosition(new cc.Point(data.x, data.y));
-        newPlayer.id = data.id;
-        this.remotePlayers.push(newPlayer);
-        this.addChild(newPlayer);
     },
 
     onStandPlayer: function(data) {
@@ -167,6 +199,8 @@ var GameLayer = InputLayer.extend({
         };
 
         hurtPlayer.hurt();
+
+        hurtPlayer.setHP(data.HP);
     },
 
     playerById: function(id) {
@@ -193,7 +227,7 @@ var GameLayer = InputLayer.extend({
             new cc.Color4B(255, 255, 255, 255), winSize.width, winSize.height);
         this.addChild(bgLayer);
 
-        this.socket = io.connect("http://zichuanwang.com", {
+        this.socket = io.connect("http://localhost", {
             port: 80,
             transports: ["websocket"],
             rememberTransport: true
@@ -220,6 +254,7 @@ var GameLayer = InputLayer.extend({
             this.keyboardStatus.down = false;
             this.keyboardStatus.right = false;
             this.keyboardStatus.left = false;
+            this.keyboardStatus.space = false;
             this.socket.emit("punch player", {});
         }
 

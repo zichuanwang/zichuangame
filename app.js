@@ -8,10 +8,7 @@
 var express = require("express"),
     server = express(),
     app = server.listen(80),
-    io = require("socket.io"),
-    gameServer = require("./gameServer").gameServer;
-
-var socket = io.listen(app);
+    gameServer = require("./gameServer");
 
 server.use('/', express.static(__dirname + '/') );
 
@@ -20,4 +17,4 @@ server.get('/', function(req,res){
     console.log('Sent index.html');
 });
 
-gameServer(socket);
+gameServer.listen(app);

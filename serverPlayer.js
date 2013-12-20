@@ -1,8 +1,10 @@
-var player = function(startX, startY, initid, initDirection) {
-    this.x = startX;
-    this.y = startY;
-    this.facingRight = initDirection;
-    this.id = initid;
+var player = function(data) {
+    this.x = data.x;
+    this.y = data.y;
+    this.facingRight = data.direction;
+    this.id = data.id;
+    this.HP = data.HP;
+    this.team = data.team;
 
     return this;
 };

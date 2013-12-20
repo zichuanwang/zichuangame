@@ -6,6 +6,9 @@ InputLayer = cc.Layer.extend({
         down: false,
         space: false
     },
+
+    spaceLock: false,
+
     init: function() {
         this._super();
         this.setKeyboardEnabled(true);
@@ -26,7 +29,9 @@ InputLayer = cc.Layer.extend({
             this.keyboardStatus.down = true;
             break;
         case cc.KEY.space:
+            if (this.spaceLock) break;
             this.keyboardStatus.space = true;
+            this.spaceLock = true;
             break;
         }
     },
@@ -47,6 +52,7 @@ InputLayer = cc.Layer.extend({
             break;
         case cc.KEY.space:
             this.keyboardStatus.space = false;
+            this.spaceLock = false;
             break;
         }
     }
